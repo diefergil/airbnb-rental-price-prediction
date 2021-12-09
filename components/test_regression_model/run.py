@@ -18,7 +18,7 @@ logger = logging.getLogger()
 
 def go(args):
 
-    run = wandb.init(job_type="test_model")
+    run = wandb.init(job_type="test_model", mode="online")
     run.config.update(args)
 
     logger.info("Downloading artifacts")
@@ -35,10 +35,25 @@ def go(args):
 
     logger.info("Loading model and performing inference on test set")
     sk_pipe = mlflow.sklearn.load_model(model_local_path)
-    y_pred = sk_pipe.predict(X_test)
+    #TODO: change the input model example with the columns used
+    columns_pred = list(pd.read_json(
+        model_local_path+"/input_example.json", lines=True)["columns"].values)[0]
+    
+    columns_pred = ['room_type',
+                    'neighbourhood_group',
+                    'minimum_nights',
+                    'number_of_reviews',
+                    'reviews_per_month',
+                    'calculated_host_listings_count',
+                    'availability_365',
+                    'longitude',
+                    'latitude',
+                    'last_review',
+                    'name']
+    y_pred = sk_pipe.predict(X_test[columns_pred])
 
     logger.info("Scoring")
-    r_squared = sk_pipe.score(X_test, y_test)
+    r_squared = sk_pipe.score(X_test[columns_pred], y_test)
 
     mae = mean_absolute_error(y_test, y_pred)
 
