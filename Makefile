@@ -21,3 +21,9 @@ grid_search:
 	mlflow run . \
   -P steps=train_random_forest \
   -P hydra_options="modeling.rand om_forest.max_depth=10,50,100 modeling.random_forest.n_estimators=100,200,500 -m"
+
+ONESHELL:
+run_pipeline_from_github:
+	mlflow run https://github.com/diefergil/nd0821-c2-build-model-workflow-starter.git \
+             -v 1.0.1 \
+             -P hydra_options="etl.sample='sample2.csv'"
